@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <sys/time.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "array_list.c"
+#include "book.c"
 
 void print_array(int* arr, int start, int len) {
   printf("[ ");
@@ -37,27 +41,34 @@ int binary_search(int* haystack, int needle, int start, int end) {
 
 int main(int argc, char *argv[])
 {
-  int arr[] = {1, 2, 3, 4, 5, 453, 3435, 9999};
-  int array_len = sizeof(arr) / sizeof(int);
+  Array arr;
+  init_array(&arr, sizeof(Book));
 
-  printf("Current array:\n");
-  print_array(arr, 0, array_len);
+  Book value =  {
+    .title = "Title1",
+    .isbn = "Deeznuts1",
+    .author = "Hello1"
+  };
+  Book value1 = {
+    .title = "Title2",
+    .isbn = "Deeznuts2",
+    .author = "Hello2"
+  };
+  Book value2 = {
+    .title = "Title3", 
+    .isbn = "Deeznuts3", 
+    .author = "Hello3"
+  };
 
-  printf("Enter a number to find in the array: ");
-  int needle;
-  scanf("%4d", &needle);
+  add_array(&arr, &value);
+  add_array(&arr, &value1);
+  add_array(&arr, &value2);
 
-  struct timeval start, stop;
-  gettimeofday(&start, NULL);
-  int res = binary_search(arr, needle, 0, array_len);
-  gettimeofday(&stop, NULL);
-  printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+  void* author = (void*) "Hello2";
 
-  if (res < 0) {
-    printf("Value '%d' was not in the array!", needle);
-  } else {
-    printf("%d\n", res);
-  }
+  int res = search_array(&arr, author, &compare_book_author);
+  printf("res = %d\n", res);
+  free_array(&arr);
 
   return EXIT_SUCCESS;
 }
