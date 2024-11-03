@@ -7,9 +7,9 @@ struct Book {
 } typedef Book;
 
 int compare_book_author(void* p1, void* p2) {
-  Book book = * (Book *) p1;
-  char* author = (char*) p2;
-  return strcmp(book.author, author);
+  Book b1 = * (Book *) p1;
+  Book b2 = * (Book*) p2;
+  return strcmp(b1.author, b2.author);
 }
 
 void print_book_voidptr(void* book) {

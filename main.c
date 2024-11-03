@@ -39,35 +39,44 @@ int binary_search(int* haystack, int needle, int start, int end) {
   }
 }
 
+int compare_test(void* a, void* b) {
+  return 1;
+}
+
 int main(int argc, char *argv[])
 {
   Array arr;
   init_array(&arr, sizeof(Book));
 
-  Book value =  {
-    .title = "Title1",
-    .isbn = "Deeznuts1",
-    .author = "Hello1"
-  };
   Book value1 = {
-    .title = "Title2",
-    .isbn = "Deeznuts2",
-    .author = "Hello2"
+    .title = "AAAA", 
+    .isbn = "asdjjuz", 
+    .author = "AAAA"
   };
-  Book value2 = {
-    .title = "Title3", 
-    .isbn = "Deeznuts3", 
-    .author = "Hello3"
+  Book value2 =  {
+    .title = "Arrasdsa",
+    .isbn = "Arrasdsa",
+    .author = "CCCC"
+  };
+  Book value3 = {
+    .title = "Title2",
+    .isbn = "aijsdlajs",
+    .author = "BBBB"
   };
 
-  add_array(&arr, &value);
   add_array(&arr, &value1);
   add_array(&arr, &value2);
+  add_array(&arr, &value3);
 
-  void* author = (void*) "Hello2";
+  printf("PRE SORT: \n");
+  each_array(&arr, print_book_voidptr);
 
-  int res = search_array(&arr, author, &compare_book_author);
-  printf("res = %d\n", res);
+  sort_array(&arr, compare_book_author, 0, arr.len);
+  printf("##############################################\n");
+
+  printf("POST SORT: \n");
+  each_array(&arr, print_book_voidptr);
+
   free_array(&arr);
 
   return EXIT_SUCCESS;

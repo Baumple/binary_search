@@ -50,8 +50,32 @@ void* get_array(Array* arr, size_t index) {
   return (void*) (arr->arr + (arr->el_size * index));
 }
 
-// TODO: Implement quick_sort
-void array_sort(Array* arr, CompareFunc comparison) {
+void sort_array(Array* arr, CompareFunc comparison, int start, int end) {
+  if ((end - start) < 2) {
+    return;
+  }
+
+  int pivot = start + ((end - start) / 2);
+  int index = arr->len - 1;
+  while (index >= 0) {
+    void* current_pivot_ptr = get_array(arr, pivot);
+    void* current_value_ptr = get_array(arr, index);
+
+    if (comparison(current_pivot_ptr, current_value_ptr)  < 0) {
+      // swap pivot with smaller value
+      // allocate a temp variable
+      void* temp = malloc(arr->el_size);
+      memcpy(temp, current_value_ptr, arr->el_size);
+      memcpy(current_value_ptr, current_pivot_ptr, arr->el_size);
+      memcpy(current_pivot_ptr, temp, arr->el_size);
+
+      pivot = index;
+    }
+    index--;
+  }
+
+  sort_array(arr, comparison, start, pivot);
+  sort_array(arr, comparison, pivot + 1, end);
 }
 
 static int do_search_array(
