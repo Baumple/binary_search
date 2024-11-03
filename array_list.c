@@ -50,32 +50,44 @@ void* get_array(Array* arr, size_t index) {
   return (void*) (arr->arr + (arr->el_size * index));
 }
 
-void sort_array(Array* arr, CompareFunc comparison, int start, int end) {
-  if ((end - start) < 2) {
+void swap_ptrs(void* a, void* b, void* temp, size_t size) {
+    memcpy(temp, a, size);
+    memcpy(a, b, size);
+    memcpy(b, temp, size);
+}
+
+static void do_sort_array(Array* arr, CompareFunc comparison, void* temp, int start, int end) {
+  if (start >= end || start < 0) {
     return;
   }
 
-  int pivot = start + ((end - start) / 2);
-  int index = arr->len - 1;
-  while (index >= 0) {
-    void* current_pivot_ptr = get_array(arr, pivot);
-    void* current_value_ptr = get_array(arr, index);
+  int temp_pivot_idx = start;
 
-    if (comparison(current_pivot_ptr, current_value_ptr)  < 0) {
-      // swap pivot with smaller value
-      // allocate a temp variable
-      void* temp = malloc(arr->el_size);
-      memcpy(temp, current_value_ptr, arr->el_size);
-      memcpy(current_value_ptr, current_pivot_ptr, arr->el_size);
-      memcpy(current_pivot_ptr, temp, arr->el_size);
+  void* pivot_ptr = get_array(arr, arr->len - 1);
+  void* temp_pivot_ptr;
 
-      pivot = index;
+  for (int j = start; j < end; j++) {
+    void* current = get_array(arr, j);
+
+    if (comparison(pivot_ptr, current) < 0) {
+      temp_pivot_ptr = get_array(arr, temp_pivot_idx);
+
+      swap_ptrs(current, temp_pivot_ptr, temp, arr->el_size);
+
+      temp_pivot_idx += 1;
     }
-    index--;
   }
 
-  sort_array(arr, comparison, start, pivot);
-  sort_array(arr, comparison, pivot + 1, end);
+  swap_ptrs(pivot_ptr, get_array(arr, temp_pivot_idx), temp, arr->el_size);
+
+  do_sort_array(arr, comparison, temp, start, temp_pivot_idx - 1);
+  do_sort_array(arr, comparison, temp, temp_pivot_idx + 1, end);
+}
+
+void sort_array(Array* arr, CompareFunc comparison) {
+  void* temp = malloc(arr->el_size);
+  do_sort_array(arr, comparison, temp, 0, arr->len);
+  free(temp);
 }
 
 static int do_search_array(
@@ -90,13 +102,14 @@ static int do_search_array(
     // end of range to search
     int end
   ) {
+  printf("============================\n");
   if ((end - start) < 1) {
     return -1;
   }
-
   int middle = start + (end - start) / 2;
   void* value = get_array(haystack, middle);
 
+  print_book_voidptr(value);
   int comp_res = comparison(value, needle);
 
   if (comp_res == 0) {

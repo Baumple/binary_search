@@ -43,39 +43,70 @@ int compare_test(void* a, void* b) {
   return 1;
 }
 
+enum {
+  SearchTitle = 1,
+  SearchAuthor = 2,
+  SearchISBN = 3
+};
+
 int main(int argc, char *argv[])
 {
+  // setup random seed, constant for testing purposes
+  srand(1);
   Array arr;
   init_array(&arr, sizeof(Book));
-
   Book value1 = {
-    .title = "AAAA", 
-    .isbn = "asdjjuz", 
-    .author = "AAAA"
+    .title = "B", 
+    .isbn = rand(), 
+    .author = "A"
   };
   Book value2 =  {
-    .title = "Arrasdsa",
-    .isbn = "Arrasdsa",
-    .author = "CCCC"
+    .title = "A",
+    .isbn = rand(),
+    .author = "C"
   };
   Book value3 = {
-    .title = "Title2",
-    .isbn = "aijsdlajs",
-    .author = "BBBB"
+    .title = "C",
+    .isbn = rand(),
+    .author = "B"
   };
 
   add_array(&arr, &value1);
   add_array(&arr, &value2);
   add_array(&arr, &value3);
 
-  printf("PRE SORT: \n");
+  each_array(&arr, print_book_voidptr);
+  sort_array(&arr, compare_book_title);
+  printf("==================================\n");
   each_array(&arr, print_book_voidptr);
 
-  sort_array(&arr, compare_book_author, 0, arr.len);
-  printf("##############################################\n");
+  return 0;
+  int answer;
+  printf("Search by title (1), author(2) or isbn(3)?\n");
+  scanf("%d", &answer);
 
-  printf("POST SORT: \n");
-  each_array(&arr, print_book_voidptr);
+  switch (answer) {
+    case SearchTitle:
+
+      // read title into memory
+      char title[50];
+      printf("Enter title (50 chars):\n");
+      scanf("%s", title);
+      title[strcspn(title, "\n")] = 0;
+
+      // search array for title
+      int res = search_array(&arr, (void*) title, compare_book_title_s);
+      printf("%d\n", res);
+      break;
+    case SearchAuthor:
+      sort_array(&arr, compare_book_author);
+      break;
+    case SearchISBN:
+      sort_array(&arr, compare_book_isbn);
+      break;
+    default:
+      printf("Bruh, not an option!\n");
+  }
 
   free_array(&arr);
 
