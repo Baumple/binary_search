@@ -40,6 +40,10 @@ void add_array(Array* arr, void* el) {
   // copy all values from the original array to the new one
   memcpy(new_arr, arr->arr, original_size);
   memcpy(new_arr + original_size, el, arr->el_size);
+
+  // free previous array
+  free_array(arr);
+
   arr->arr = new_arr;
   arr->len += 1;
 }
@@ -79,7 +83,6 @@ static void do_sort_array(Array* arr, CompareFunc comparison, void* temp, int st
 
       temp_pivot_idx += 1;
     }
-    printf("\n");
   }
 
   swap_ptrs(pivot_ptr, get_array(arr, temp_pivot_idx), temp, arr->el_size);
@@ -106,8 +109,12 @@ static int do_search_array(
     // start of range to search
     int start,
     // end of range to search
-    int end
+    int end,
+    // number of iterations
+    int* depth
   ) {
+
+  *depth += 1;
 
   if ((end - start) < 1) {
     return -1;
@@ -127,7 +134,8 @@ static int do_search_array(
         needle,
         comparison,
         middle + 1,
-        end
+        end,
+        depth
     );
 
   } else {
@@ -136,7 +144,8 @@ static int do_search_array(
         needle,
         comparison,
         start,
-        middle
+        middle,
+        depth
     );
 
   }
@@ -155,13 +164,16 @@ int search_array(
     // needle to search for
     void* needle,                    
     // function to compare with
-    CompareFunc comparison
+    CompareFunc comparison,
+    // number of iterations taken
+    int* depth
   ) {
   return do_search_array(
       haystack, needle,
       comparison,
       0,
-      haystack->len
+      haystack->len,
+      depth
   );
 }
 
