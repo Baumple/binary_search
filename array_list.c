@@ -50,10 +50,13 @@ void* get_array(Array* arr, size_t index) {
   return (void*) (arr->arr + (arr->el_size * index));
 }
 
-void swap_ptrs(void* a, void* b, void* temp, size_t size) {
-    memcpy(temp, a, size);
-    memcpy(a, b, size);
-    memcpy(b, temp, size);
+void swap_ptrs(void* restrict a, void* restrict b, void* restrict temp, size_t size) {
+  if (a == b) {
+    return;
+  }
+  memcpy(temp, a, size);
+  memcpy(a, b, size);
+  memcpy(b, temp, size);
 }
 
 static void do_sort_array(Array* arr, CompareFunc comparison, void* temp, int start, int end) {
@@ -63,30 +66,33 @@ static void do_sort_array(Array* arr, CompareFunc comparison, void* temp, int st
 
   int temp_pivot_idx = start;
 
-  void* pivot_ptr = get_array(arr, arr->len - 1);
+  void* pivot_ptr = get_array(arr, end);
   void* temp_pivot_ptr;
 
   for (int j = start; j < end; j++) {
     void* current = get_array(arr, j);
 
-    if (comparison(pivot_ptr, current) < 0) {
+    if (comparison(current, pivot_ptr) <= 0) {
       temp_pivot_ptr = get_array(arr, temp_pivot_idx);
 
       swap_ptrs(current, temp_pivot_ptr, temp, arr->el_size);
 
       temp_pivot_idx += 1;
     }
+    printf("\n");
   }
 
   swap_ptrs(pivot_ptr, get_array(arr, temp_pivot_idx), temp, arr->el_size);
+
 
   do_sort_array(arr, comparison, temp, start, temp_pivot_idx - 1);
   do_sort_array(arr, comparison, temp, temp_pivot_idx + 1, end);
 }
 
 void sort_array(Array* arr, CompareFunc comparison) {
+  // temp space for swapping values
   void* temp = malloc(arr->el_size);
-  do_sort_array(arr, comparison, temp, 0, arr->len);
+  do_sort_array(arr, comparison, temp, 0, arr->len - 1);
   free(temp);
 }
 
@@ -102,14 +108,14 @@ static int do_search_array(
     // end of range to search
     int end
   ) {
-  printf("============================\n");
+
   if ((end - start) < 1) {
     return -1;
   }
+
   int middle = start + (end - start) / 2;
   void* value = get_array(haystack, middle);
 
-  print_book_voidptr(value);
   int comp_res = comparison(value, needle);
 
   if (comp_res == 0) {
@@ -152,8 +158,7 @@ int search_array(
     CompareFunc comparison
   ) {
   return do_search_array(
-      haystack,
-      needle,
+      haystack, needle,
       comparison,
       0,
       haystack->len

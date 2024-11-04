@@ -45,18 +45,6 @@ enum {
   SearchISBN = 3
 };
 
-// reads stdin and writes the input into the given buffer
-void read_input(char buffer[static 50]) {
-    printf("Enter input (50 chars):\n");
-
-    if (fgets(buffer, 50, stdin) == NULL) {
-      printf("Could not read stdin\n");
-      exit(EXIT_FAILURE);
-    }
-
-    buffer[strcspn(buffer, "\n")] = 0; // remove trailing newline
-}
-
 int main(int argc, char *argv[])
 {
   srand(1);
@@ -70,7 +58,7 @@ int main(int argc, char *argv[])
   Book value2 =  {
     .author = "C",
     .title = "A",
-    .isbn = 420,
+    .isbn = rand(),
   };
   Book value3 = {
     .author = "B",
@@ -92,46 +80,24 @@ int main(int argc, char *argv[])
 
   switch (answer) {
     case SearchTitle:
-      sort_array(&arr, compare_book_title);
       // sort array for binary search
       each_array(&arr, print_book_voidptr);
       // read title into memory
-      read_input(input);
+      printf("Enter input (50 chars):\n");
+      fgets(input, sizeof(input), stdin);
+      printf("input = '%s'\n", input);
+
       // search array for input
       res = search_array(&arr, (void*) input, compare_book_title_s);
-      if (res < 0) {
-        printf("Could not find given input in the book list. Maybe try another search type.\n");
-      } else {
-        printf("Your book resides at index %d!\n", res);
-      }
+      printf("%d\n", res);
       break;
     case SearchAuthor:
       sort_array(&arr, compare_book_author);
-      each_array(&arr, print_book_voidptr);
-
-      read_input(input);
-      res = search_array(&arr, (void*) input, compare_book_author_s);
-
-      if (res < 0) {
-        printf("Could not find given input in the book list. Maybe try another search type.\n");
-      } else {
-        printf("Your book resides at index %d!\n", res);
-      }
-
+      printf("Enter input: (50 chars):\n");
+      fgets(input, sizeof(input), stdin);
       break;
     case SearchISBN:
       sort_array(&arr, compare_book_isbn);
-      each_array(&arr, print_book_voidptr);
-
-      read_input(input);
-      uint64_t input_num = atoi(input);
-      res = search_array(&arr, (void*) &input_num, compare_book_isbn_ui);
-
-      if (res < 0) {
-        printf("Could not find given input in the book list. Maybe try another search type.\n");
-      } else {
-        printf("Your book resides at index %d!\n", res);
-      }
       break;
     default:
       printf("Bruh, not an option!\n");
